@@ -1,4 +1,4 @@
-<h1 align="center">NestJS-Pino</h1>
+<h1 align="center">NestJS-Pino Fixed - without protestware</h1>
 
 <p align="center">
   <a href="https://www.npmjs.com/package/nestjs-pino">

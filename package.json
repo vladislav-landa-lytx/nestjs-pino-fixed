@@ -1,5 +1,5 @@
 {
-  "name": "nestjs-pino",
+  "name": "nestjs-pino-fixed",
   "version": "2.5.1",
   "description": "Pino logger for NestJS",
   "main": "index.js",
@@ -22,7 +22,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/iamolegga/nestjs-pino.git"
+    "url": "git+https://github.com/vladislav-landa-lytx/nestjs-pino-fixed.git"
   },
   "keywords": [
     "pino",
@@ -34,9 +34,9 @@
   "author": "Oleg Repin <iamolegga@gmail.com> (http://github.com/iamolegga)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/iamolegga/nestjs-pino/issues"
+    "url": "https://github.com/vladislav-landa-lytx/nestjs-pino-fixed/issues"
   },
-  "homepage": "https://github.com/iamolegga/nestjs-pino#readme",
+  "homepage": "https://github.com/vladislav-landa-lytx/nestjs-pino-fixed#readme",
   "devDependencies": {
     "@nestjs/common": "^8.0.0",
     "@nestjs/core": "^8.0.0",

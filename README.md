@@ -35,7 +35,7 @@ npm i nestjs-pino pino-http
 Firstly, import module with `LoggerModule.forRoot(...)` or `LoggerModule.forRootAsync(...)` only once in root module (check out module configuration docs [below](#configuration)):
 
 ```ts
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino-fixed';
 
 @Module({
   imports: [LoggerModule.forRoot()],
@@ -46,7 +46,7 @@ class AppModule {}
 Secondly, set up app logger:
 
 ```ts
-import { Logger } from 'nestjs-pino';
+import { Logger } from 'nestjs-pino-fixed';
 
 const app = await NestFactory.create(AppModule, { bufferLogs: true });
 app.useLogger(app.get(Logger));
@@ -75,7 +75,7 @@ export class MyService {
 Usage of the standard logger is recommended and idiomatic for NestJS. But there is one more option to use:
 
 ```ts
-import { PinoLogger, InjectPinoLogger } from 'nestjs-pino';
+import { PinoLogger, InjectPinoLogger } from 'nestjs-pino-fixed';
 
 export class MyService {
   constructor(
@@ -146,7 +146,7 @@ There are other Nestjs loggers. Key purposes of this module are:
 Just import `LoggerModule` to your module:
 
 ```ts
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino-fixed';
 
 @Module({
   imports: [LoggerModule.forRoot()],
@@ -217,7 +217,7 @@ interface Params {
 Use `LoggerModule.forRoot` method with argument of [Params interface](#configuration-params):
 
 ```ts
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino-fixed';
 
 @Module({
   imports: [
@@ -253,7 +253,7 @@ With `LoggerModule.forRootAsync` you can, for example, import your `ConfigModule
 Here's an example:
 
 ```ts
-import { LoggerModule } from 'nestjs-pino';
+import { LoggerModule } from 'nestjs-pino-fixed';
 
 @Injectable()
 class ConfigService {
@@ -284,27 +284,36 @@ class ConfigModule {}
 class TestModule {}
 ```
 
-### Extreme mode
+### Asynchronous logging
 
-> In essence, `extreme` mode enables even faster performance by `pino`.
+> In essence, asynchronous logging enables even faster performance by `pino`.
 
-Please, read [pino extreme mode docs](https://github.com/pinojs/pino/blob/master/docs/extreme.md#extreme-mode) first. There is a risk of some logs being lost, but you can [minimize it](https://github.com/pinojs/pino/blob/master/docs/extreme.md#log-loss-prevention).
+Please, read [pino asynchronous mode docs](https://github.com/pinojs/pino/blob/master/docs/asynchronous.md) first. There is a possibility of the most recently buffered log messages being lost in case of a system failure, e.g. a power cut.
 
 If you know what you're doing, you can enable it like so:
 
 ```ts
 import pino from 'pino';
-import { LoggerModule } from 'nestjs-pino';
-
-const dest = pino.extreme();
-const logger = pino(dest);
+import { LoggerModule } from 'nestjs-pino-fixed';
 
 @Module({
-  imports: [LoggerModule.forRoot({ pinoHttp: { logger } })],
+  imports: [
+    LoggerModule.forRoot({
+      pinoHttp: {
+        stream: pino.destination({
+          dest: './my-file', // omit for stdout
+          minLength: 4096, // Buffer before writing
+          sync: false, // Asynchronous logging
+        }),
+      },
+    }),
+  ],
   ...
 })
 class MyModule {}
 ```
+
+See [pino.destination](https://github.com/pinojs/pino/blob/master/docs/api.md#pino-destination)
 
 ## Testing a class that uses @InjectPinoLogger
 
@@ -329,7 +338,7 @@ Using this token, you can provide a mock implementation of the logger using any 
 
 ```ts
 // logger.service.ts
-import { Logger, PinoLogger, Params, PARAMS_PROVIDER_TOKEN } from 'nestjs-pino';
+import { Logger, PinoLogger, Params, PARAMS_PROVIDER_TOKEN } from 'nestjs-pino-fixed';
 
 @Injectable()
 class LoggerService extends Logger {
@@ -343,7 +352,7 @@ class LoggerService extends Logger {
   myMethod(): any {}
 }
 
-import { PinoLogger, Params, PARAMS_PROVIDER_TOKEN } from 'nestjs-pino';
+import { PinoLogger, Params, PARAMS_PROVIDER_TOKEN } from 'nestjs-pino-fixed';
 
 @Injectable()
 class LoggerService extends PinoLogger {
@@ -426,7 +435,7 @@ class TestController {
 By default, `pino-http` exposes `err` property with a stack trace and error details, however, this `err` property contains default error details, which do not tell anything about actual error. To expose actual error details you need you to use a NestJS interceptor which captures exceptions and assigns them to the response object `err` property which is later processed by pino-http:   
 
 ```typescript
-import { LoggerErrorInterceptor } from 'nestjs-pino';
+import { LoggerErrorInterceptor } from 'nestjs-pino-fixed';
 
 const app = await NestFactory.create(AppModule);
 app.useGlobalInterceptors(new LoggerErrorInterceptor());
@@ -447,7 +456,7 @@ A new more convenient way to inject a custom logger that implements `LoggerServi
 
 ```ts
 // main.ts
-import { Logger } from 'nestjs-pino';
+import { Logger } from 'nestjs-pino-fixed';
 // ...
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
@@ -458,7 +467,7 @@ Note that for [standalone applications](https://docs.nestjs.com/standalone-appli
 
 ```ts
 // main.ts
-import { Logger } from 'nestjs-pino';
+import { Logger } from 'nestjs-pino-fixed';
 
 // ... 
   const app = await NestFactory.createApplicationContext(AppModule, { bufferLogs: true });
